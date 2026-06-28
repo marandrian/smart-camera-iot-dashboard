@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SMART CAMERA TRACKING SYSTEM</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+    <style>
+        /* --- SUPABASE DESIGN SYSTEM TOKENS (Diterjemahkan dari DESIGN-supabase.md) --- */
+        :root {
+            /* Colors */
+            --color-primary: #3ecf8e;
+            --color-primary-deep: #24b47e;
+            --color-ink: #171717;
+            --color-ink-secondary: #212121;
+            --color-ink-mute: #707070;
+            --color-canvas: #ffffff;
+            --color-canvas-soft: #fafafa;
+            --color-canvas-night: #1c1c1c;
+            --color-hairline: #dfdfdf;
+            --color-hairline-strong: #c7c7c7;
+            --color-accent-tomato: #ff2201;
+
+            /* Spacing */
+            --spacing-sm: 8px;
+            --spacing-md: 12px;
+            --spacing-lg: 16px;
+            --spacing-xl: 24px;
+            --spacing-xxl: 32px;
+
+            /* Border Radius */
+            --rounded-sm: 6px;
+            --rounded-lg: 12px;
+            --rounded-full: 9999px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: var(--color-canvas);
+            color: var(--color-ink);
+            padding: var(--spacing-xxl);
+            line-height: 1.5;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* --- CONTAINER WORK --- */
+        .container {
+            max-width: 1280px;
+            margin: 0 auto;
+        }
+
+        /* --- NAVIGATION BAR STYLE (nav-bar-light) --- */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: var(--spacing-lg) 0;
+            border-bottom: 1px solid var(--color-hairline);
+            margin-bottom: var(--spacing-xxl);
+        }
+
+        header h1 {
+            font-size: 22px;
+            font-weight: 500;
+            letter-spacing: -0.42px;
+            color: var(--color-ink);
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+        }
+
+        /* Dot aksen hijau khas Supabase */
+        header h1::colorDot {
+            content: "";
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            background-color: var(--color-primary);
+            border-radius: var(--rounded-full);
+        }
+
+        header p {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 13px;
+            color: var(--color-ink-mute);
+        }
+
+        /* --- ASYMMETRICAL GRID SYSTEM --- */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--spacing-xl);
+            margin-bottom: var(--spacing-xl);
+        }
+
+        @media (max-width: 1024px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* --- CARD STYLE (card-feature-light) --- */
+        .card {
+            background-color: var(--color-canvas);
+            border: 1px solid var(--color-hairline);
+            border-radius: var(--rounded-lg);
+            padding: var(--spacing-xxl);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+        }
+
+        .card-full {
+            grid-column: 1 / -1;
+        }
+
+        .card h2 {
+            font-size: 16px;
+            font-weight: 500;
+            color: var(--color-ink-secondary);
+            margin-bottom: var(--spacing-xl);
+            letter-spacing: 0;
+        }
+
+        /* --- REALTIME INK TELEMETRY --- */
+        .speaker-display {
+            font-size: 48px;
+            font-weight: 500;
+            letter-spacing: -1.44px;
+            color: var(--color-ink);
+            line-height: 1.1;
+            margin-bottom: var(--spacing-xl);
+        }
+
+        .meta-list {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 14px;
+            color: var(--color-ink-secondary);
+            list-style: none;
+        }
+
+        .meta-list li {
+            padding: var(--spacing-sm) 0;
+            border-bottom: 1px solid var(--color-canvas-soft);
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .meta-list span {
+            color: var(--color-ink-mute);
+        }
+
+        /* --- BUTTONS SYSTEM (Technical & Clean) --- */
+        .btn-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--spacing-sm);
+            margin-bottom: var(--spacing-sm);
+        }
+
+        /* button-secondary-outline */
+        .btn {
+            font-family: 'Inter', sans-serif;
+            font-size: 14px;
+            font-weight: 500;
+            background-color: var(--color-canvas);
+            color: var(--color-ink);
+            border: 1px solid var(--color-hairline-strong);
+            border-radius: var(--rounded-sm);
+            padding: 8px 16px;
+            cursor: pointer;
+            text-align: center;
+            transition: background-color 0.15s ease;
+        }
+
+        .btn:hover {
+            background-color: var(--color-canvas-soft);
+            border-color: var(--color-ink-mute);
+        }
+
+        /* button-primary-green (Idiosyncratic: Near-black text on green!) */
+        .btn-primary {
+            background-color: var(--color-primary);
+            color: var(--color-on-primary); /* #171717 */
+            border: 1px solid var(--color-primary);
+        }
+
+        .btn-primary:hover {
+            background-color: var(--color-primary-deep);
+            border-color: var(--color-primary-deep);
+        }
+
+    /* --- CODE BLOCK COMPONENT (code-block) --- */
+        .code-block {
+            background-color: var(--color-canvas-night);
+            color: #ffffff !important; /* Memaksa teks berwarna putih murni */
+            font-family: 'ui-monospace', 'JetBrains Mono', monospace;
+            font-size: 14px;
+            padding: var(--spacing-lg);
+            border-radius: var(--rounded-sm);
+            margin-top: var(--spacing-md);
+            overflow-x: auto;
+            border: 1px solid #2e2e2e;
+        }
+
+        /* --- MINIMALIST DATA TABLE --- */
+        .table-container {
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            font-size: 14px;
+        }
+
+        th {
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--color-ink-mute);
+            text-transform: uppercase;
+            padding: var(--spacing-md) var(--spacing-sm);
+            border-bottom: 1px solid var(--color-hairline-strong);
+            letter-spacing: 0.05em;
+        }
+
+        td {
+            padding: var(--spacing-md) var(--spacing-sm);
+            border-bottom: 1px solid var(--color-hairline);
+            color: var(--color-ink-secondary);
+        }
+
+        td.mono {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 13px;
+        }
+
+        tr:hover td {
+            background-color: var(--color-canvas-soft);
+        }
+
+        /* Pill Tag Green */
+        .pill {
+            background-color: var(--color-primary);
+            color: var(--color-on-primary);
+            font-size: 12px;
+            padding: 2px 8px;
+            border-radius: var(--rounded-full);
+            font-weight: 500;
+            display: inline-block;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <h1>Smart Tracking Camera</h1>
+            <p>CORE_ENGINE // RSI.PROJECT.2026</p>
+        </header>
+
+        <main class="dashboard-grid">
+            
+            <section class="card">
+                <h2>Active Speaker Status</h2>
+                <div id="active-speaker" class="speaker-display">
+                    {{ latest.active_speaker }}
+                </div>
+                <ul class="meta-list">
+                    <li><span>Hardware Interface</span> <span>RPi 3 + ESP32 via USB Serial</span></li>
+                    <li><span>Current Pan Position</span> <span id="lbl-pan">{{ latest.pan_angle }}°</span></li>
+                    <li><span>Current Tilt Position</span> <span id="lbl-tilt">{{ latest.tilt_angle }}°</span></li>
+                </ul>
+            </section>
+
+            <section class="card">
+                <h2>Manual Edge Override</h2>
+                <div class="btn-group">
+                    <button class="btn" onclick="sendControl('ORANG_A')">Focus: Speaker A (45°)</button>
+                    <button class="btn" onclick="sendControl('ORANG_B')">Focus: Speaker B (135°)</button>
+                </div>
+                <div class="btn-group">
+                    <button class="btn" onclick="sendControl('TENGAH')">Calibrate Center (90°)</button>
+                    <button class="btn btn-primary" onclick="sendControl('AUTO')">Resume Auto Mode</button>
+                </div>
+                <div id="control-feedback" class="code-block">
+                    $ system initialized. awaiting payload command...
+                </div>
+            </section>
+
+            <section class="card">
+                <h2>Audio Input Telemetry (RMS Level)</h2>
+                <ul class="meta-list">
+                    <li><span>Mic Channel Left (Speaker A)</span> <span id="lbl-rms-left" style="font-family: monospace;">{{ latest.rms_left }}</span></li>
+                    <li><span>Mic Channel Right (Speaker B)</span> <span id="lbl-rms-right" style="font-family: monospace;">{{ latest.rms_right }}</span></li>
+                </ul>
+            </section>
+
+            <section class="card card-full">
+                <h2>Historical Tracking Streams (Supabase Postgres)</h2>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Timestamp</th>
+                                <th>Active Source</th>
+                                <th>Pan Coord</th>
+                                <th>Tilt Coord</th>
+                                <th>RMS Left</th>
+                                <th>RMS Right</th>
+                            </tr>
+                        </thead>
+                        <tbody id="log-table-body">
+                            <tr>
+                                <td colspan="6" style="text-align: center; color: var(--color-ink-mute);">Querying records from remote database...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <script>
+        function sendControl(targetName) {
+            document.getElementById('control-feedback').innerText = "$ sending command packet to hivemq cloud broker...";
+            
+            fetch('/control', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ target: targetName })
+            })
+            .then(res => res.json())
+            .then(data => {
+                document.getElementById('control-feedback').innerText = ">> " + data.message.toLowerCase();
+            })
+            .catch(err => {
+                document.getElementById('control-feedback').innerText = ">> error dispatching packet: " + err;
+            });
+        }
+
+        function fetchNewData() {
+            fetch('/api/logs')
+            .then(res => res.json())
+            .then(resData => {
+                if (resData.status === "success" && resData.data.length > 0) {
+                    const latest = resData.data[0];
+                    
+                    document.getElementById('active-speaker').innerText = latest.active_speaker;
+                    document.getElementById('lbl-pan').innerText = latest.pan_angle + "°";
+                    document.getElementById('lbl-tilt').innerText = latest.tilt_angle + "°";
+                    document.getElementById('lbl-rms-left').innerText = latest.rms_left.toFixed(4);
+                    document.getElementById('lbl-rms-right').innerText = latest.rms_right.toFixed(4);
+
+                    const tbody = document.getElementById('log-table-body');
+                    tbody.innerHTML = "";
+                    
+                    resData.data.forEach(log => {
+                        const date = new Date(log.created_at).toLocaleString('id-ID');
+                        
+                        // Logika badge kecil untuk active speaker
+                        const speakerBadge = log.active_speaker === 'Hening' 
+                            ? `<span>${log.active_speaker}</span>`
+                            : `<span class="pill">${log.active_speaker}</span>`;
+
+                        const row = `<tr>
+                            <td class="mono">${date}</td>
+                            <td>${speakerBadge}</td>
+                            <td class="mono">${log.pan_angle}°</td>
+                            <td class="mono">${log.tilt_angle}°</td>
+                            <td class="mono">${log.rms_left.toFixed(4)}</td>
+                            <td class="mono">${log.rms_right.toFixed(4)}</td>
+                        </tr>`;
+                        tbody.innerHTML += row;
+                    });
+                }
+            })
+            .catch(err => console.error("Data pipeline sync error:", err));
+        }
+
+        setInterval(fetchNewData, 2000);
+        fetchNewData();
+    </script>
+</body>
+</html>

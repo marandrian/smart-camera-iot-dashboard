@@ -259,25 +259,6 @@
             font-weight: 500;
             display: inline-block;
         }
-
-        /* --- AUDIO METER GRAPHICS --- */
-        .meter-container {
-            width: 100%;
-            background-color: var(--color-canvas-soft);
-            border: 1px solid var(--color-hairline);
-            height: 8px;
-            border-radius: var(--rounded-full);
-            overflow: hidden;
-            margin-top: var(--spacing-sm);
-        }
-
-        .meter-bar {
-            height: 100%;
-            width: 0%; /* Diatur dinamis via JS */
-            background-color: var(--color-primary);
-            border-radius: var(--rounded-full);
-            transition: width 0.6s cubic-bezier(0.16, 1, 0.3, 1); /* Efek pergerakan halus elastis */
-        }
     </style>
 </head>
 <body>
@@ -285,36 +266,10 @@
     <div class="container">
         <header>
             <h1>Smart Tracking Camera</h1>
-            <div style="display: flex; align-items: center; gap: 16px;">
-                <p>CORE_ENGINE // RSI.PROJECT.2026</p>
-                <a href="/logout" style="font-size: 13px; color: var(--color-accent-tomato); text-decoration: none; border: 1px solid var(--color-hairline); padding: 4px 12px; border-radius: var(--rounded-sm); background: var(--color-canvas-soft);">Logout</a>
-            </div>
+            <p>CORE_ENGINE // RSI.PROJECT.2026</p>
         </header>
 
         <main class="dashboard-grid">
-
-            <section class="card card-full" style="padding: var(--spacing-lg);">
-                <div style="display: flex; gap: var(--spacing-xl); align-items: flex-end; flex-wrap: wrap;">
-                    
-                    <div style="flex: 1; min-width: 250px;">
-                        <label style="font-size: 12px; font-weight: 500; color: var(--color-ink-mute); text-transform: uppercase; display: block; margin-bottom: 4px;">Speaker A (Left Mic) Configuration</label>
-                        <div style="display: flex; gap: var(--spacing-sm);">
-                            <input type="text" id="cfg-name-a" value="Marcel" style="flex: 1; padding: 8px 12px; border: 1px solid var(--color-hairline); border-radius: var(--rounded-sm); font-size: 14px; font-family: inherit;">
-                            <input type="color" id="cfg-color-a" value="#3ecf8e" style="width: 40px; height: 38px; border: 1px solid var(--color-hairline); border-radius: var(--rounded-sm); cursor: pointer; padding: 2px;">
-                        </div>
-                    </div>
-
-                    <div style="flex: 1; min-width: 250px;">
-                        <label style="font-size: 12px; font-weight: 500; color: var(--color-ink-mute); text-transform: uppercase; display: block; margin-bottom: 4px;">Speaker B (Right Mic) Configuration</label>
-                        <div style="display: flex; gap: var(--spacing-sm);">
-                            <input type="text" id="cfg-name-b" value="Iqbal" style="flex: 1; padding: 8px 12px; border: 1px solid var(--color-hairline); border-radius: var(--rounded-sm); font-size: 14px; font-family: inherit;">
-                            <input type="color" id="cfg-color-b" value="#644fc1" style="width: 40px; height: 38px; border: 1px solid var(--color-hairline); border-radius: var(--rounded-sm); cursor: pointer; padding: 2px;">
-                        </div>
-                    </div>
-
-                    <button class="btn" style="height: 38px; padding: 0 24px;" onclick="saveSpeakerConfig()">Save Configuration</button>
-                </div>
-            </section>
             
             <section class="card">
                 <h2>Active Speaker Status</h2>
@@ -330,8 +285,8 @@
 
             <section class="card">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
-                    <h2 style="margin: 0; line-height: 1;">System Control Center</h2>
-                    <span id="mode-badge" class="pill" style="background-color: var(--color-ink-mute); margin: 0; display: inline-flex; align-items: center; height: 20px;">AUTO</span>
+                    <h2>System Control Center</h2>
+                    <span id="mode-badge" class="pill" style="background-color: var(--color-ink-mute);">AUTO</span>
                 </div>
 
                 <button id="btn-toggle-mode" class="btn" style="width: 100%; margin-bottom: 16px; font-weight: 600;" onclick="toggleSystemMode()">
@@ -356,26 +311,10 @@
 
             <section class="card">
                 <h2>Audio Input Telemetry (RMS Level)</h2>
-                
-                <div style="margin-top: var(--spacing-md);">
-                    <div style="display: flex; justify-content: space-between; align-items: center; font-size: 14px;">
-                        <span style="color: var(--color-ink-secondary);">Mic Channel Left (Speaker A)</span>
-                        <span id="lbl-rms-left" class="mono" style="font-weight: 500;">0.0000</span>
-                    </div>
-                    <div class="meter-container">
-                        <div id="meter-left" class="meter-bar"></div>
-                    </div>
-                </div>
-
-                <div style="margin-top: var(--spacing-xl);">
-                    <div style="display: flex; justify-content: space-between; align-items: center; font-size: 14px;">
-                        <span style="color: var(--color-ink-secondary);">Mic Channel Right (Speaker B)</span>
-                        <span id="lbl-rms-right" class="mono" style="font-weight: 500;">0.0000</span>
-                    </div>
-                    <div class="meter-container">
-                        <div id="meter-right" class="meter-bar"></div>
-                    </div>
-                </div>
+                <ul class="meta-list">
+                    <li><span>Mic Channel Left (Speaker A)</span> <span id="lbl-rms-left" style="font-family: monospace;">{{ latest.rms_left }}</span></li>
+                    <li><span>Mic Channel Right (Speaker B)</span> <span id="lbl-rms-right" style="font-family: monospace;">{{ latest.rms_right }}</span></li>
+                </ul>
             </section>
 
             <section class="card card-full">
@@ -407,18 +346,12 @@
     <script>
 
         // Fungsi Logika Toggle Utama
-        // Fungsi Logika Saklar Utama dengan Efek Jeda Loading
         function toggleSystemMode() {
-            const toggleBtn = document.getElementById('btn-toggle-mode');
-            
-            // Animasi transisi instan saat tombol ditekan
-            toggleBtn.innerText = "$ processing state transition...";
-            toggleBtn.disabled = true; // Kunci tombol agar tidak bisa spam klik
-            toggleBtn.style.opacity = "0.5";
-
             if (isManualMode) {
+                // Jika sekarang manual, maka ketika diklik kita pindah ke AUTO
                 sendControl('AUTO');
             } else {
+                // Jika sekarang auto, ketika diklik kita paksa masuk MANUAL (pindah ke tengah dulu sebagai safe state)
                 sendControl('TENGAH');
             }
         }
@@ -440,160 +373,70 @@
             });
         }
 
-        // ==========================================
-        // SISTEM KONFIGURASI NAMA & WARNA DINAMIS
-        // ==========================================
+        // Variabel global untuk mencatat mode aktif hasil pembacaan database
         let isManualMode = false;
 
-        // Ambil konfigurasi nama & warna dari LocalStorage browser
-        function getSpeakerConfig() {
-            return {
-                nameA: localStorage.getItem('spk_name_a') || 'Marcel',
-                colorA: localStorage.getItem('spk_color_a') || '#3ecf8e',
-                nameB: localStorage.getItem('spk_name_b') || 'Iqbal',
-                colorB: localStorage.getItem('spk_color_b') || '#644fc1'
-            };
-        }
-
-        // Simpan data kustomisasi ke LocalStorage
-        function saveSpeakerConfig() {
-            const nameA = document.getElementById('cfg-name-a').value.trim();
-            const colorA = document.getElementById('cfg-color-a').value;
-            const nameB = document.getElementById('cfg-name-b').value.trim();
-            const colorB = document.getElementById('cfg-color-b').value;
-
-            localStorage.setItem('spk_name_a', nameA || 'Marcel');
-            localStorage.setItem('spk_color_a', colorA);
-            localStorage.setItem('spk_name_b', nameB || 'Iqbal');
-            localStorage.setItem('spk_color_b', colorB);
-
-            alert("$ system profile updated configuration context successfully.");
-            fetchNewData(); // Refresh UI instan
-        }
-
-        // Sinkronisasi isi form input dengan data memori
-        function initConfigInputs() {
-            const cfg = getSpeakerConfig();
-            document.getElementById('cfg-name-a').value = cfg.nameA;
-            document.getElementById('cfg-color-a').value = cfg.colorA;
-            document.getElementById('cfg-name-b').value = cfg.nameB;
-            document.getElementById('cfg-color-b').value = cfg.colorB;
-        }
-
-        // ==========================================
-        // PIPELINE DATA UTAMA (FETCH FROM REST API)
-        // ==========================================
         function fetchNewData() {
             fetch('/api/logs')
             .then(res => res.json())
             .then(resData => {
                 if (resData.status === "success" && resData.data.length > 0) {
                     const latest = resData.data[0];
-                    const cfg = getSpeakerConfig(); // Muat konfigurasi kustom nama & warna
                     
-                    // Cek status mode operasi
+                    // Validasi Status Mode Berdasarkan Data Terkini
                     isManualMode = (latest.active_speaker === "MANUAL OVERRIDE");
 
-                    // Ambil elemen DOM untuk kontrol
+                    // UI Update untuk Komponen Indikator Mode & Tombol Saklar
                     const modeBadge = document.getElementById('mode-badge');
                     const toggleBtn = document.getElementById('btn-toggle-mode');
                     const btnA = document.getElementById('btn-opt-a');
                     const btnB = document.getElementById('btn-opt-b');
                     const btnC = document.getElementById('btn-opt-c');
 
-                    // Update UI Saklar Kontrol (Toggle) & Tombol Arah
                     if (isManualMode) {
                         modeBadge.innerText = "MANUAL";
-                        modeBadge.style.backgroundColor = "var(--color-accent-tomato)";
+                        modeBadge.style.backgroundColor = "var(--color-accent-tomato)"; /* Merah jika manual */
                         
                         toggleBtn.innerText = "Resume Auto Mode";
-                        toggleBtn.classList.add('btn-primary');
-                        toggleBtn.disabled = false;
-                        toggleBtn.style.opacity = "1";
+                        toggleBtn.classList.add('btn-primary'); /* Berubah jadi Hijau Supabase */
                         
+                        // Aktifkan tombol arah karena sedang di mode manual
                         btnA.disabled = false; btnB.disabled = false; btnC.disabled = false;
                         btnA.style.opacity = "1"; btnB.style.opacity = "1"; btnC.style.opacity = "1";
                     } else {
                         modeBadge.innerText = "AUTO";
-                        modeBadge.style.backgroundColor = "var(--color-primary)";
+                        modeBadge.style.backgroundColor = "var(--color-primary)"; /* Hijau jika otomatis */
                         
                         toggleBtn.innerText = "Switch to Manual Mode";
-                        toggleBtn.classList.remove('btn-primary');
-                        toggleBtn.disabled = false;
-                        toggleBtn.style.opacity = "1";
+                        toggleBtn.classList.remove('btn-primary'); /* Kembali jadi outline putih */
                         
+                        // Nonaktifkan tombol arah agar user tidak sengaja mencet saat mode auto berjalan
                         btnA.disabled = true; btnB.disabled = true; btnC.disabled = true;
                         btnA.style.opacity = "0.4"; btnB.style.opacity = "0.4"; btnC.style.opacity = "0.4";
                     }
-
-                    // Ubah label nama tombol arah sesuai kustomisasi pembicara
-                    btnA.innerText = `Focus: ${cfg.nameA} (45°)`;
-                    btnB.innerText = `Focus: ${cfg.nameB} (135°)`;
-
-                    // Logika Penerjemahan Nama & Warna Display Utama secara Real-Time
-                    let displayName = latest.active_speaker;
-                    let displayColor = "var(--color-ink)";
-
-                    if (latest.active_speaker === "Orang A") {
-                        displayName = cfg.nameA;
-                        displayColor = cfg.colorA;
-                    } else if (latest.active_speaker === "Orang B") {
-                        displayName = cfg.nameB;
-                        displayColor = cfg.colorB;
-                    } else if (latest.active_speaker === "Hening") {
-                        displayColor = "var(--color-ink-mute)";
-                    } else if (isManualMode) {
-                        displayColor = "var(--color-accent-tomato)";
-                    }
-
-                    // Update konten Display Utama
-                    const txtSpeaker = document.getElementById('active-speaker');
-                    txtSpeaker.innerText = displayName;
-                    txtSpeaker.style.color = displayColor;
-
-                    // Update text koordinat derajat regular
+                    
+                    // Update teks parameter telemetri regular
+                    document.getElementById('active-speaker').innerText = latest.active_speaker;
                     document.getElementById('lbl-pan').innerText = latest.pan_angle + "°";
                     document.getElementById('lbl-tilt').innerText = latest.tilt_angle + "°";
-                    
-                    // Update text nilai desimal RMS asli
                     document.getElementById('lbl-rms-left').innerText = latest.rms_left.toFixed(4);
                     document.getElementById('lbl-rms-right').innerText = latest.rms_right.toFixed(4);
 
-                    // =========================================================
-                    // AKTIVASI INDIKATOR AUDIO VU METER (SEKARANG SUDAH AMAN)
-                    // =========================================================
-                    const pctLeft = Math.min((latest.rms_left / 0.5) * 100, 100);
-                    const pctRight = Math.min((latest.rms_right / 0.5) * 100, 100);
-                    
-                    // Dorong nilai lebar width ke batang CSS
-                    document.getElementById('meter-left').style.width = pctLeft + "%";
-                    document.getElementById('meter-right').style.width = pctRight + "%";
-                    
-                    // Warnai batang meteran secara dinamis sesuai kode warna pilihanmu
-                    document.getElementById('meter-left').style.backgroundColor = cfg.colorA;
-                    document.getElementById('meter-right').style.backgroundColor = cfg.colorB;
-
-                    // Render Ulang Isi Tabel Historis Database SQL Postgres
+                    // Render ulang komponen tabel historis
                     const tbody = document.getElementById('log-table-body');
                     tbody.innerHTML = "";
                     
                     resData.data.forEach(log => {
                         const date = new Date(log.created_at).toLocaleString('id-ID');
-                        
-                        let tableBadge = "";
-                        if (log.active_speaker === 'Orang A') {
-                            tableBadge = `<span class="pill" style="background-color: ${cfg.colorA}; color: #ffffff;">${cfg.nameA}</span>`;
-                        } else if (log.active_speaker === 'Orang B') {
-                            tableBadge = `<span class="pill" style="background-color: ${cfg.colorB}; color: #ffffff;">${cfg.nameB}</span>`;
-                        } else if (log.active_speaker === 'MANUAL OVERRIDE') {
-                            tableBadge = `<span class="pill" style="background-color: var(--color-ink-mute); color: #ffffff;">${log.active_speaker}</span>`;
-                        } else {
-                            tableBadge = `<span>${log.active_speaker}</span>`;
-                        }
+                        const speakerBadge = log.active_speaker === 'Hening' 
+                            ? `<span>${log.active_speaker}</span>`
+                            : (log.active_speaker === 'MANUAL OVERRIDE' 
+                                ? `<span class="pill" style="background-color: var(--color-ink-mute);">${log.active_speaker}</span>`
+                                : `<span class="pill">${log.active_speaker}</span>`);
 
                         const row = `<tr>
                             <td class="mono">${date}</td>
-                            <td>${tableBadge}</td>
+                            <td>${speakerBadge}</td>
                             <td class="mono">${log.pan_angle}°</td>
                             <td class="mono">${log.tilt_angle}°</td>
                             <td class="mono">${log.rms_left.toFixed(4)}</td>
@@ -606,8 +449,6 @@
             .catch(err => console.error("Data pipeline sync error:", err));
         }
 
-        // Jalankan Inisialisasi Otomatis Saat Web Dibuka
-        initConfigInputs();
         setInterval(fetchNewData, 2000);
         fetchNewData();
     </script>
