@@ -1,0 +1,5 @@
+flask
+python-dotenv
+paho-mqtt
+supabase
+requests
