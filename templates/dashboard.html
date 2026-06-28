@@ -307,7 +307,7 @@
                     <div style="flex: 1; min-width: 250px;">
                         <label style="font-size: 12px; font-weight: 500; color: var(--color-ink-mute); text-transform: uppercase; display: block; margin-bottom: 4px;">Speaker B (Right Mic) Configuration</label>
                         <div style="display: flex; gap: var(--spacing-sm);">
-                            <input type="text" id="cfg-name-b" value="Iqbal" style="flex: 1; padding: 8px 12px; border: 1px solid var(--color-hairline); border-radius: var(--rounded-sm); font-size: 14px; font-family: inherit;">
+                            <input type="text" id="cfg-name-b" value="Atha" style="flex: 1; padding: 8px 12px; border: 1px solid var(--color-hairline); border-radius: var(--rounded-sm); font-size: 14px; font-family: inherit;">
                             <input type="color" id="cfg-color-b" value="#644fc1" style="width: 40px; height: 38px; border: 1px solid var(--color-hairline); border-radius: var(--rounded-sm); cursor: pointer; padding: 2px;">
                         </div>
                     </div>
@@ -450,7 +450,7 @@
             return {
                 nameA: localStorage.getItem('spk_name_a') || 'Marcel',
                 colorA: localStorage.getItem('spk_color_a') || '#3ecf8e',
-                nameB: localStorage.getItem('spk_name_b') || 'Iqbal',
+                nameB: localStorage.getItem('spk_name_b') || 'Atha',
                 colorB: localStorage.getItem('spk_color_b') || '#644fc1'
             };
         }
@@ -464,7 +464,7 @@
 
             localStorage.setItem('spk_name_a', nameA || 'Marcel');
             localStorage.setItem('spk_color_a', colorA);
-            localStorage.setItem('spk_name_b', nameB || 'Iqbal');
+            localStorage.setItem('spk_name_b', nameB || 'Atha');
             localStorage.setItem('spk_color_b', colorB);
 
             alert("$ system profile updated configuration context successfully.");
