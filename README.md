@@ -38,7 +38,7 @@ smart-camera-iot-dashboard/
 │   └── pantilt_control.ino      # Algoritma Servo Pan-Tilt
 │   └── testing_pantilt.ino      # Script percobaan Servo untuk pertama kalinya
 ├── raspberry-pi/
-│   └── main_tracking.py        # Algoritma Fusion Lokal (Audio RMS + OpenCV Face Tracking)
+│   └── main_tracking.py        # Algoritma Utama Tracking (Audio RMS + OpenCV Face Tracking)
 ├── templates/
 │   └── dashboard.html          # Halaman Dashboard
 │   └── dashboard2.html         # Backup outdated dari dashboard.html
