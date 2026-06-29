@@ -198,7 +198,7 @@
             border-color: var(--color-primary-deep);
         }
 
-    /* --- CODE BLOCK COMPONENT (code-block) --- */
+        /* --- CODE BLOCK COMPONENT (code-block) --- */
         .code-block {
             background-color: var(--color-canvas-night);
             color: #ffffff !important; /* Memaksa teks berwarna putih murni */
@@ -318,6 +318,11 @@
             
             <section class="card">
                 <h2>Active Speaker Status</h2>
+                
+                <div style="width: 100%; border-radius: var(--rounded-sm); overflow: hidden; margin-bottom: var(--spacing-lg); border: 1px solid var(--color-hairline); background-color: var(--color-canvas-soft);">
+                    <img src="/api/video_feed" style="width: 100%; height: auto; display: block;" alt="[ Menunggu Aliran Gambar Live Camera... ]">
+                </div>
+
                 <div id="active-speaker" class="speaker-display">
                     {{ latest.active_speaker }}
                 </div>
@@ -405,45 +410,10 @@
     </div>
 
     <script>
-
-        // Fungsi Logika Toggle Utama
-        // Fungsi Logika Saklar Utama dengan Efek Jeda Loading
-        function toggleSystemMode() {
-            const toggleBtn = document.getElementById('btn-toggle-mode');
-            
-            // Animasi transisi instan saat tombol ditekan
-            toggleBtn.innerText = "$ processing state transition...";
-            toggleBtn.disabled = true; // Kunci tombol agar tidak bisa spam klik
-            toggleBtn.style.opacity = "0.5";
-
-            if (isManualMode) {
-                sendControl('AUTO');
-            } else {
-                sendControl('TENGAH');
-            }
-        }
-
-        function sendControl(targetName) {
-            document.getElementById('control-feedback').innerText = "$ sending command packet to hivemq cloud broker...";
-            
-            fetch('/control', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ target: targetName })
-            })
-            .then(res => res.json())
-            .then(data => {
-                document.getElementById('control-feedback').innerText = ">> " + data.message.toLowerCase();
-            })
-            .catch(err => {
-                document.getElementById('control-feedback').innerText = ">> error dispatching packet: " + err;
-            });
-        }
-
-        // ==========================================
-        // SISTEM KONFIGURASI NAMA & WARNA DINAMIS
-        // ==========================================
-        let isManualMode = false;
+        // ========================================================
+        // GLOBAL SYSTEM STATE MANAGER (HYBRID SYNC LOOK)
+        // ========================================================
+        let isManualMode = false; 
 
         // Ambil konfigurasi nama & warna dari LocalStorage browser
         function getSpeakerConfig() {
@@ -453,6 +423,15 @@
                 nameB: localStorage.getItem('spk_name_b') || 'Atha',
                 colorB: localStorage.getItem('spk_color_b') || '#644fc1'
             };
+        }
+
+        // Sinkronisasi isi form input dengan data memori
+        function initConfigInputs() {
+            const cfg = getSpeakerConfig();
+            document.getElementById('cfg-name-a').value = cfg.nameA;
+            document.getElementById('cfg-color-a').value = cfg.colorA;
+            document.getElementById('cfg-name-b').value = cfg.nameB;
+            document.getElementById('cfg-color-b').value = cfg.colorB;
         }
 
         // Simpan data kustomisasi ke LocalStorage
@@ -468,146 +447,173 @@
             localStorage.setItem('spk_color_b', colorB);
 
             alert("$ system profile updated configuration context successfully.");
-            fetchNewData(); // Refresh UI instan
+            updateControlCenterUI();
+            fetchNewData(); 
         }
 
-        // Sinkronisasi isi form input dengan data memori
-        function initConfigInputs() {
+        // ========================================================
+        // MANAJEMEN SAKLAR TOMBOL & BADGE VISUAL DUA ARAH
+        // ========================================================
+        function updateControlCenterUI() {
+            const modeBadge = document.getElementById('mode-badge');
+            const toggleBtn = document.getElementById('btn-toggle-mode');
+            const btnA = document.getElementById('btn-opt-a');
+            const btnB = document.getElementById('btn-opt-b');
+            const btnC = document.getElementById('btn-opt-c');
             const cfg = getSpeakerConfig();
-            document.getElementById('cfg-name-a').value = cfg.nameA;
-            document.getElementById('cfg-color-a').value = cfg.colorA;
-            document.getElementById('cfg-name-b').value = cfg.nameB;
-            document.getElementById('cfg-color-b').value = cfg.colorB;
+
+            btnA.innerText = `Focus: ${cfg.nameA} (45°)`;
+            btnB.innerText = `Focus: ${cfg.nameB} (135°)`;
+
+            if (isManualMode) {
+                modeBadge.innerText = "MANUAL";
+                modeBadge.style.backgroundColor = "var(--color-accent-tomato)";
+                toggleBtn.innerText = "Resume Auto Mode";
+                toggleBtn.classList.add('btn-primary');
+                
+                // Aktifkan gembok 3 tombol manual arah fokus secara mutlak
+                btnA.disabled = false; btnB.disabled = false; btnC.disabled = false;
+                btnA.style.opacity = "1"; btnB.style.opacity = "1"; btnC.style.opacity = "1";
+            } else {
+                modeBadge.innerText = "AUTO";
+                modeBadge.style.backgroundColor = "var(--color-primary)";
+                toggleBtn.innerText = "Switch to Manual Mode";
+                toggleBtn.classList.remove('btn-primary');
+                
+                // Kunci kembali 3 tombol manual arah fokus
+                btnA.disabled = true; btnB.disabled = true; btnC.disabled = true;
+                btnA.style.opacity = "0.4"; btnB.style.opacity = "0.4"; btnC.style.opacity = "0.4";
+            }
+            toggleBtn.disabled = false;
+            toggleBtn.style.opacity = "1";
         }
 
-        // ==========================================
-        // PIPELINE DATA UTAMA (FETCH FROM REST API)
-        // ==========================================
+        function toggleSystemMode() {
+            if (isManualMode) {
+                isManualMode = false;
+                updateControlCenterUI();
+                sendControl('AUTO');
+            } else {
+                isManualMode = true;
+                updateControlCenterUI();
+                sendControl('TENGAH'); 
+            }
+        }
+
+        function sendControl(targetName) {
+            document.getElementById('control-feedback').innerText = "$ sending command packet to hivemq cloud broker...";
+            
+            fetch('/control', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ target: targetName })
+            })
+            .then(res => res.json())
+            .then(data => {
+                document.getElementById('control-feedback').innerText = ">> " + (data.message ? data.message.toLowerCase() : "success");
+            })
+            .catch(err => {
+                document.getElementById('control-feedback').innerText = ">> error dispatching packet: " + err;
+            });
+        }
+
+        // ========================================================
+        // PIPELINE TELEMETRI (MENYINKRONKAN DATA & STATE UI)
+        // ========================================================
         function fetchNewData() {
             fetch('/api/logs')
             .then(res => res.json())
             .then(resData => {
-                if (resData.status === "success" && resData.data.length > 0) {
+                if (resData.status === "success" && resData.data && resData.data.length > 0) {
                     const latest = resData.data[0];
-                    const cfg = getSpeakerConfig(); // Muat konfigurasi kustom nama & warna
+                    const cfg = getSpeakerConfig(); 
                     
-                    // Cek status mode operasi
-                    isManualMode = (latest.active_speaker === "MANUAL OVERRIDE");
+                    const activeSpeaker = latest.active_speaker ? String(latest.active_speaker) : "Hening";
+                    const panAngle = (latest.pan_angle !== undefined && latest.pan_angle !== null) ? latest.pan_angle : 90;
+                    const tiltAngle = (latest.tilt_angle !== undefined && latest.tilt_angle !== null) ? latest.tilt_angle : 90;
+                    const rmsLeft = typeof latest.rms_left === 'number' ? latest.rms_left : 0.0;
+                    const rmsRight = typeof latest.rms_right === 'number' ? latest.rms_right : 0.0;
 
-                    // Ambil elemen DOM untuk kontrol
-                    const modeBadge = document.getElementById('mode-badge');
-                    const toggleBtn = document.getElementById('btn-toggle-mode');
-                    const btnA = document.getElementById('btn-opt-a');
-                    const btnB = document.getElementById('btn-opt-b');
-                    const btnC = document.getElementById('btn-opt-c');
+                    // FIX UTAMA: Sinkronisasikan variabel internal JS dengan status nyata di database Supabase
+                    isManualMode = activeSpeaker.toUpperCase().includes("MANUAL");
+                    updateControlCenterUI(); // Panggil fungsi visual agar tombol & badge ikut berubah secara real-time!
 
-                    // Update UI Saklar Kontrol (Toggle) & Tombol Arah
-                    if (isManualMode) {
-                        modeBadge.innerText = "MANUAL";
-                        modeBadge.style.backgroundColor = "var(--color-accent-tomato)";
-                        
-                        toggleBtn.innerText = "Resume Auto Mode";
-                        toggleBtn.classList.add('btn-primary');
-                        toggleBtn.disabled = false;
-                        toggleBtn.style.opacity = "1";
-                        
-                        btnA.disabled = false; btnB.disabled = false; btnC.disabled = false;
-                        btnA.style.opacity = "1"; btnB.style.opacity = "1"; btnC.style.opacity = "1";
-                    } else {
-                        modeBadge.innerText = "AUTO";
-                        modeBadge.style.backgroundColor = "var(--color-primary)";
-                        
-                        toggleBtn.innerText = "Switch to Manual Mode";
-                        toggleBtn.classList.remove('btn-primary');
-                        toggleBtn.disabled = false;
-                        toggleBtn.style.opacity = "1";
-                        
-                        btnA.disabled = true; btnB.disabled = true; btnC.disabled = true;
-                        btnA.style.opacity = "0.4"; btnB.style.opacity = "0.4"; btnC.style.opacity = "0.4";
-                    }
-
-                    // Ubah label nama tombol arah sesuai kustomisasi pembicara
-                    btnA.innerText = `Focus: ${cfg.nameA} (45°)`;
-                    btnB.innerText = `Focus: ${cfg.nameB} (135°)`;
-
-                    // Logika Penerjemahan Nama & Warna Display Utama secara Real-Time
-                    let displayName = latest.active_speaker;
+                    // Logika Penentuan Display Nama Utama di Dashboard Card
+                    let displayName = activeSpeaker;
                     let displayColor = "var(--color-ink)";
 
-                    if (latest.active_speaker === "Orang A") {
-                        displayName = cfg.nameA;
-                        displayColor = cfg.colorA;
-                    } else if (latest.active_speaker === "Orang B") {
-                        displayName = cfg.nameB;
-                        displayColor = cfg.colorB;
-                    } else if (latest.active_speaker === "Hening") {
-                        displayColor = "var(--color-ink-mute)";
-                    } else if (isManualMode) {
+                    if (isManualMode) {
+                        displayName = "Manual Override"; 
                         displayColor = "var(--color-accent-tomato)";
+                    } else {
+                        if (activeSpeaker === "Orang A") {
+                            displayName = cfg.nameA;
+                            displayColor = cfg.colorA;
+                        } else if (activeSpeaker === "Orang B") {
+                            displayName = cfg.nameB;
+                            displayColor = cfg.colorB;
+                        } else if (activeSpeaker === "Hening") {
+                            displayColor = "var(--color-ink-mute)";
+                        }
                     }
 
-                    // Update konten Display Utama
                     const txtSpeaker = document.getElementById('active-speaker');
                     txtSpeaker.innerText = displayName;
                     txtSpeaker.style.color = displayColor;
 
-                    // Update text koordinat derajat regular
-                    document.getElementById('lbl-pan').innerText = latest.pan_angle + "°";
-                    document.getElementById('lbl-tilt').innerText = latest.tilt_angle + "°";
-                    
-                    // Update text nilai desimal RMS asli
-                    document.getElementById('lbl-rms-left').innerText = latest.rms_left.toFixed(4);
-                    document.getElementById('lbl-rms-right').innerText = latest.rms_right.toFixed(4);
+                    document.getElementById('lbl-pan').innerText = panAngle + "°";
+                    document.getElementById('lbl-tilt').innerText = tiltAngle + "°";
+                    document.getElementById('lbl-rms-left').innerText = rmsLeft.toFixed(4);
+                    document.getElementById('lbl-rms-right').innerText = rmsRight.toFixed(4);
 
-                    // =========================================================
-                    // AKTIVASI INDIKATOR AUDIO VU METER (SEKARANG SUDAH AMAN)
-                    // =========================================================
-                    const pctLeft = Math.min((latest.rms_left / 0.5) * 100, 100);
-                    const pctRight = Math.min((latest.rms_right / 0.5) * 100, 100);
-                    
-                    // Dorong nilai lebar width ke batang CSS
+                    // Pergerakan Grafik Dinamis Audio VU Meter
+                    const pctLeft = Math.min((rmsLeft / 0.5) * 100, 100);
+                    const pctRight = Math.min((rmsRight / 0.5) * 100, 100);
                     document.getElementById('meter-left').style.width = pctLeft + "%";
                     document.getElementById('meter-right').style.width = pctRight + "%";
-                    
-                    // Warnai batang meteran secara dinamis sesuai kode warna pilihanmu
                     document.getElementById('meter-left').style.backgroundColor = cfg.colorA;
                     document.getElementById('meter-right').style.backgroundColor = cfg.colorB;
 
-                    // Render Ulang Isi Tabel Historis Database SQL Postgres
+                    // Render Ulang Isi Tabel Historis Database
                     const tbody = document.getElementById('log-table-body');
                     tbody.innerHTML = "";
                     
                     resData.data.forEach(log => {
-                        const date = new Date(log.created_at).toLocaleString('id-ID');
-                        
+                        if (!log) return;
+                        const date = log.created_at ? new Date(log.created_at).toLocaleString('id-ID') : "-";
+                        const logSpeaker = log.active_speaker ? String(log.active_speaker) : "Hening";
+                        const logPan = (log.pan_angle !== undefined && log.pan_angle !== null) ? log.pan_angle : 90;
+                        const logTilt = (log.tilt_angle !== undefined && log.tilt_angle !== null) ? log.tilt_angle : 90;
+                        const logL = typeof log.rms_left === 'number' ? log.rms_left : 0.0;
+                        const logR = typeof log.rms_right === 'number' ? log.rms_right : 0.0;
+
                         let tableBadge = "";
-                        if (log.active_speaker === 'Orang A') {
+                        if (logSpeaker === 'Orang A') {
                             tableBadge = `<span class="pill" style="background-color: ${cfg.colorA}; color: #ffffff;">${cfg.nameA}</span>`;
-                        } else if (log.active_speaker === 'Orang B') {
+                        } else if (logSpeaker === 'Orang B') {
                             tableBadge = `<span class="pill" style="background-color: ${cfg.colorB}; color: #ffffff;">${cfg.nameB}</span>`;
-                        } else if (log.active_speaker === 'MANUAL OVERRIDE') {
-                            tableBadge = `<span class="pill" style="background-color: var(--color-ink-mute); color: #ffffff;">${log.active_speaker}</span>`;
+                        } else if (logSpeaker.toUpperCase().includes("MANUAL")) {
+                            tableBadge = `<span class="pill" style="background-color: var(--color-accent-tomato); color: #ffffff;">MANUAL</span>`;
                         } else {
-                            tableBadge = `<span>${log.active_speaker}</span>`;
+                            tableBadge = `<span>${logSpeaker}</span>`;
                         }
 
-                        const row = `<tr>
+                        tbody.innerHTML += `<tr>
                             <td class="mono">${date}</td>
                             <td>${tableBadge}</td>
-                            <td class="mono">${log.pan_angle}°</td>
-                            <td class="mono">${log.tilt_angle}°</td>
-                            <td class="mono">${log.rms_left.toFixed(4)}</td>
-                            <td class="mono">${log.rms_right.toFixed(4)}</td>
+                            <td class="mono">${logPan}°</td>
+                            <td class="mono">${logTilt}°</td>
+                            <td class="mono">${logL.toFixed(4)}</td>
+                            <td class="mono">${logR.toFixed(4)}</td>
                         </tr>`;
-                        tbody.innerHTML += row;
                     });
                 }
             })
             .catch(err => console.error("Data pipeline sync error:", err));
         }
 
-        // Jalankan Inisialisasi Otomatis Saat Web Dibuka
         initConfigInputs();
+        updateControlCenterUI();
         setInterval(fetchNewData, 2000);
         fetchNewData();
     </script>
