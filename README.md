@@ -1,6 +1,12 @@
-# Smart Camera Tracking System Berbasis Multi-Sensor Fusion IoT
+# Smart Presentation Tracking Camera Berbasis IoT dan Edge Computing
 
 Proyek sistem tracking kamera yang menggabungkan parameter spasial audio-visual menggunakan metode Multi-Sensor Fusion di tingkat lokal / edge computing. Sistem ini terintegrasi dengan Cloud VPS melalui protokol MQTT untuk kontrol manual dan sinkronisasi data riwayat ke database Supabase.
+
+Proyek dikembangkan oleh:
+* Athaillah Daffa Andara (140910240015)
+* Rifa Yulia Putri (140910240028)
+* Marcel Andrian Naftali (140910240043)
+* Atha Zaky Anargya (140910240044)
 
 ---
 
