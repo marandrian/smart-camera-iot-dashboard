@@ -35,7 +35,7 @@ Ekosistem proyek dibagi jadi tiga bagian kerja utama:
 ```text
 smart-camera-iot-dashboard/
 ├── esp32/
-│   └── pantilt_control.ino      # Firmware Driver Servo Pan-Tilt C++ (Arduino)
+│   └── pantilt_control.ino      # Algoritma Servo Pan-Tilt
 │   └── testing_pantilt.ino      # Script percobaan Servo untuk pertama kalinya
 ├── raspberry-pi/
 │   └── main_tracking.py        # Algoritma Fusion Lokal (Audio RMS + OpenCV Face Tracking)
@@ -45,8 +45,8 @@ smart-camera-iot-dashboard/
 │   └── login.html              # Halaman Login
 │   └── register.html           # Halaman Register
 ├── venv/                       # Python Virtual Environment
-├── .gitignore                  # Berkas instruksi pengabaian file sensitif (.env)
-├── README.md                   # Dokumentasi utama arsitektur IoT & metode sistem
+├── .gitignore                  
+├── README.md                   
 ├── app.py                      # Web Server API Flask & MQTT Subscriber (Cloud VPS)
 ├── dashboard.html              # Backup outdated dari templates/dashboard.html
 ├── mock_device.py              # Script simulator pengujian pengiriman data telemetri
