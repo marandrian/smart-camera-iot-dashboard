@@ -1,19 +1,19 @@
 # Smart Camera Tracking System Berbasis Multi-Sensor Fusion IoT
 
-proyek sistem tracking kamera yang menggabungkan parameter spasial audio (Dual Microphone Array) dan visual (Computer Vision) menggunakan metode multi-sensor fusion di tingkat lokal / edge computing. sistem ini terintegrasi dengan Cloud VPS melalui protokol MQTT untuk kontrol manual dan sinkronisasi data riwayat ke database Supabase.
+Proyek sistem tracking kamera yang menggabungkan parameter spasial audio-visual menggunakan metode Multi-Sensor Fusion di tingkat lokal / edge computing. Sistem ini terintegrasi dengan Cloud VPS melalui protokol MQTT untuk kontrol manual dan sinkronisasi data riwayat ke database Supabase.
 
 ---
 
 ## Pemodelan Matematika Sistem
 
-sistem ini mengadopsi perhitungan fisis dan fungsional terstruktur sebagai berikut:
+Sistem ini mengadopsi perhitungan fisis dan fungsional terstruktur sebagai berikut:
 
 ### 1. Ekstraksi Gain Audio (RMS level)
-intensitas sinyal suara dihitung secara diskrit menggunakan formula RMS untuk menyaring threshold keheningan:
+Intensitas sinyal suara dihitung secara diskrit menggunakan formula RMS untuk menyaring threshold keheningan:
 * RMS = akar dari (1/N * jumlah dari x[i]^2)
 
 ### 2. Koreksi Error Offset Kamera
-koreksi arah kamera dihitung berdasarkan selisih posisi titik tengah koordinat horizontal wajah terhadap titik tengah lensa kamera (resolusi horizontal W = 320px):
+Koreksi arah kamera dihitung berdasarkan selisih posisi titik tengah koordinat horizontal wajah terhadap titik tengah lensa kamera (resolusi horizontal W = 320px):
 * Error Offset (ex) = (x + w/2) - 160
 
 ### 3. Fungsi Deadzone Kendali Aktuator
@@ -25,7 +25,7 @@ Untuk mencegah fenomena servo bergetar akibat noise, dipasang deadzone sebesar 1
 
 ## Struktur Repo
 
-ekosistem proyek dibagi jadi tiga bagian kerja utama:
+Ekosistem proyek dibagi jadi tiga bagian kerja utama:
 
 smart-camera-iot-system/
 ├── cloud-vps/                 # Backend & Frontend yang berjalan di Cloud Server
@@ -43,8 +43,8 @@ smart-camera-iot-system/
 
 ## Infrastruktur Jaringan & Protokol Komunikasi
 
-### Topologi Topik MQTT (HiveMQ Cloud Broker)
-komunikasi data asinkronus dua arah dikelola melalui dua pipa utama:
+### Topic MQTT (HiveMQ Cloud Broker)
+Komunikasi data asinkronus dua arah dikelola melalui dua pipa utama:
 * smartcamera/tracking_logs (QoS 1): jalur uplink bagi Raspberry Pi untuk memublikasikan data koordinat, level RMS mic, dan nama pembicara aktif menuju database cloud.
 * kampus/smartcamera/cmd (QoS 0): jalur downlink bagi Cloud VPS untuk mengirimkan paket perintah kendali interupsi manual dari dashboard menuju pergerakan servo lokal.
 
