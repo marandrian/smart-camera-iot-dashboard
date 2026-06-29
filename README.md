@@ -24,20 +24,27 @@ Untuk mencegah fenomena servo bergetar akibat noise, dipasang deadzone sebesar 1
 ---
 
 ## Struktur Repo
-
 Ekosistem proyek dibagi jadi tiga bagian kerja utama:
 
-smart-camera-iot-system/
-├── cloud-vps/                 # Backend & Frontend yang berjalan di Cloud Server
-│   ├── app.py                 # Web Server Flask, Session Auth, dan MQTT Subscriber
-│   └── templates/
-│       └── dashboard.html     # Web Dashboard antarmuka berbasis Swiss Design
-│
-├── raspberry-pi/              # Node Edge Processing Lokal
-│   └── main_tracking.py       # Algoritma Utama Audio RMS & OpenCV Face Tracking
-│
-└── esp32-executor/            # Node Aktuasi Hardware
-    └── esp32-executor.ino     # Firmware Driver Servo Pan-Tilt Base Kit
+```text
+smart-camera-iot-dashboard/
+├── esp32/
+│   └── pantilt_control.ino      # Firmware Driver Servo Pan-Tilt C++ (Arduino)
+│   └── testing_pantilt.ino      # Script percobaan Servo untuk pertama kalinya
+├── raspberry-pi/
+│   └── main_tracking.py        # Algoritma Fusion Lokal (Audio RMS + OpenCV Face Tracking)
+├── templates/
+│   └── dashboard.html          # Halaman Dashboard
+│   └── dashboard2.html         # Backup outdated dari dashboard.html
+│   └── login.html              # Halaman Login
+│   └── register.html           # Halaman Register
+├── venv/                       # Python Virtual Environment (Abaikan saat upload)
+├── .gitignore                  # Berkas instruksi pengabaian file sensitif (.env)
+├── README.md                   # Dokumentasi utama arsitektur IoT & metode sistem
+├── app.py                      # Web Server API Flask & MQTT Subscriber (Cloud VPS)
+├── dashboard.html              # Backup outdated dari templates/dashboard.html
+├── mock_device.py              # Script simulator pengujian pengiriman data telemetri
+└── requirements.txt            # Daftar dependensi library Python backend Flask
 
 ---
 
