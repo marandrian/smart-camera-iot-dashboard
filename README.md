@@ -45,7 +45,7 @@ smart-camera-iot-dashboard/
 ├── dashboard.html              # Backup outdated dari templates/dashboard.html
 ├── mock_device.py              # Script simulator pengujian pengiriman data telemetri
 └── requirements.txt            # Daftar dependensi library Python backend Flask
-```text
+```
 
 ---
 
