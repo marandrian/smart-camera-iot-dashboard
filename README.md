@@ -59,15 +59,15 @@ smart-camera-iot-dashboard/
 
 ### Topic MQTT (HiveMQ Cloud Broker)
 Komunikasi data asinkronus dua arah dikelola melalui dua pipa utama:
-* smartcamera/tracking_logs (QoS 1): jalur uplink bagi Raspberry Pi untuk memublikasikan data koordinat, level RMS mic, dan nama pembicara aktif menuju database cloud.
-* kampus/smartcamera/cmd (QoS 0): jalur downlink bagi Cloud VPS untuk mengirimkan paket perintah kendali interupsi manual dari dashboard menuju pergerakan servo lokal.
+* smartcamera/tracking_logs (QoS 1): Jalur uplink bagi Raspberry Pi untuk memublikasikan data koordinat, level RMS mic, dan nama pembicara aktif menuju database cloud.
+* kampus/smartcamera/cmd (QoS 0): Jalur downlink bagi Cloud VPS untuk mengirimkan paket perintah kendali interupsi manual dari dashboard menuju pergerakan servo lokal.
 
 ### Arsitektur REST API Endpoints (HTTP/REST)
-* GET /login & POST /login : mengurus fungsi auth akun pengguna.
-* GET / : merender halaman utama dashboard.
-* POST /control : menerima perintah ketukan manual dari dashboard untuk diteruskan ke MQTT.
-* POST /api/upload_frame : pipa pengunggahan byte gambar JPEG mentah dari kamera lokal secara paralel.
-* GET /api/video_feed : menyemburkan aliran gambar (video streaming) menggunakan MIME tipe multipart/x-mixed-replace.
+* GET /login & POST /login : Mengurus fungsi auth akun pengguna.
+* GET / : Merender halaman utama dashboard.
+* POST /control : Menerima perintah ketukan manual dari dashboard untuk diteruskan ke MQTT.
+* POST /api/upload_frame : Pipa pengunggahan byte gambar JPEG mentah dari kamera lokal secara paralel.
+* GET /api/video_feed : Menyemburkan aliran gambar (video streaming) menggunakan MIME tipe multipart/x-mixed-replace.
 * GET /api/logs : AJAX Polling berkala (setiap 2 detik) untuk menarik riwayat log terbaru dari database remote Supabase.
 
 ---
